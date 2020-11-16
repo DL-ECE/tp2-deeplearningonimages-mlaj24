@@ -619,9 +619,9 @@ What are the different classes
 
 def fashion_mnist_dataset_answer():
     shape = [28,28]  # replace None with the value you found
-    number_of_images_in_train_set = fmnist_train.dataset.data.shape[0]
-    number_of_images_in_test_set = fmnist_val.dataset.data.shape[0]
-    number_of_classes = len(fmnist_train.dataset.classes)
+    number_of_images_in_train_set = 60000
+    number_of_images_in_test_set = 10000
+    number_of_classes = 10
     return {'shape': shape, 'nb_in_train_set': number_of_images_in_train_set, 'nb_in_test_set': number_of_images_in_test_set, 'number_of_classes': number_of_classes}
 
 fashion_mnist_dataset_answer()
