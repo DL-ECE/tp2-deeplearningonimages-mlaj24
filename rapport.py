@@ -612,8 +612,6 @@ def display_10_images(dataset):
       plt.figure
       display_image(dataset[i])
 
-display_10_images(fmnist_train.dataset.data)
-
 """What is the shape of each images
 How many images do we have
 What are the different classes
