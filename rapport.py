@@ -733,7 +733,7 @@ if __name__ == "__main__":
     # Network Hyperparameters 
     # YOUR CODE HERE 
     minibatch_size = 100
-    nepoch = 20
+    nepoch = 15
     learning_rate = 0.1
     momentum = 0
 
@@ -763,11 +763,11 @@ I also take in consideration the momentum, which is a coefficient (between 0 and
 
 The experiment has been made with a set of 70000 images divided in 10 categories or classes from Fashion MNIST - Database. I trained a CNN Model able to recognize the right product category of an image. 86% of the data have been used for training, and the other 14% have been used to test the model after traning. The objective was to have a minimum of 89% accuracy for both training and testing, enough to be representative of reality and not enough to match the training set too much.
 
-After multiple tries with hyperparameters values, I decided to end my experiment with a batch_size of 100, a learning rate of 0.1, 20 epochs and a 0 momentum. The sequence of my model remained the same than advised, starting with 2 successive subsequences of 2 3x3 convolution layers and one 2D Max-Pooling layer, then a Flatten layer and 3 Fully-Connected layers.
+After multiple tries with hyperparameters values, I decided to end my experiment with a batch_size of 100, a learning rate of 0.1, 15 epochs and a 0 momentum. The sequence of my model remained the same than advised, starting with 2 successive subsequences of 2 3x3 convolution layers and one 2D Max-Pooling layer, then a Flatten layer and 3 Fully-Connected layers.
 
 For all epochs, a certain number of batches of 32 images each are treated. 1875 batches for traning and 313 batches for testing. 
 
-The first epoch (=0) consists only of a test that ends with poor accuracy (around 10% or more). Logical as the traning hasn't started yet. It is only from the first epoch with actual model training (=1) that we can notice an accuracy skyrocketting for both traning and test, complement of a loss plumetting. Accuracies tend to go up fast, then slower and slower as we arrive to a ceiling near 97% or 98%, awesome numbers when it comes to describing the quality of a model. At the end, training accuracy was around 91% and test accuracy was around 89% to 90%, which is enough to consider the objective of this experiment complete.
+The first epoch (=0) consists only of a test that ends with poor accuracy (around 10% or more). Logical as the traning hasn't started yet. It is only from the first epoch with actual model training (=1) that we can notice an accuracy skyrocketting for both traning and test, complement of a loss plumetting. Accuracies tend to go up fast, then slower and slower as we arrive to a certain ceiling. At the end, training accuracy was around 91% and test accuracy was around 89% to 90%, which is enough to consider the objective of this experiment complete.
 
 Like in TP1, when increasing the number of epochs, accuracies can only go up at the end. 
 
