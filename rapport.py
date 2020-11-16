@@ -572,7 +572,7 @@ def convolution_forward_torch(image, kernel):
     # YOUR CODE HERE 
     image_t = torch.from_numpy(image)
    
-    image_n = torch.ones((image_t.shape[0]+2, image_t.shape[1]+2))
+    image_n = torch.zeros((image_t.shape[0]+2, image_t.shape[1]+2))
     image_n[1:image_n.shape[0]-1, 1:image_n.shape[1]-1] = image_t
     kernel_t = torch.zeros(kernel.shape[0], kernel.shape[1], 1)
     kernel_t[:,:,0]=torch.from_numpy(kernel)
@@ -655,24 +655,39 @@ class CNNModel(nn.Module):
     def __init__(self, classes=10):
         super().__init__()
         # YOUR CODE HERE 
-        self.conv1 = nn.Sequential(
-            torch.nn.Conv2d(kernel_size=3), # 784
-            torch.nn.Conv2d(kernel_size=3), # 784
-            torch.nn.MaxPool2D(kernel_size=2), # 392
-            torch.nn.Conv2d(kernel_size=3), # 392
-            torch.nn.Conv2d(kernel_size=3), # 392
-            torch.nn.MaxPool2D(kernel_size=2), # 191
-            torch.nn.Flatten(),
-            torch.nn.Linear(191, 100000),
-            torch.nn.Linear(100000, 1000),
-            torch.nn.Linear(1000, classes),
-            )
+        self.conv1 = nn.Conv2d(1,32,3, padding=1)
+        self.conv2 = nn.Conv2d(32,64,3, padding=1) 
+        self.pool = nn.MaxPool2d(2)
+        self.conv3 = nn.Conv2d(64,64,3, padding=1)
+        self.conv4 = nn.Conv2d(64,128,3, padding=1)
+        self.flat = nn.Flatten()
+        self.linear1 = nn.Linear(6272, 3000)
+        self.linear2 = nn.Linear(3000, 1000)
+        self.linear3 = nn.Linear(1000, classes)
 
     def forward(self, input):
-        x = self.conv1(input)
-        # YOUR CODE HERE 
-        y = softmax(x)
-        return y
+         x = F.relu(self.conv1(input))
+        
+         x = F.relu(self.conv2(x))
+
+         x = self.pool(x)
+
+         x = F.relu(self.conv3(x))
+
+         x = F.relu(self.conv4(x))
+
+         x = self.pool(x)
+
+         x = self.flat(x)
+
+         x = F.relu(self.linear1(x))
+
+         x = F.relu(self.linear2(x))
+
+         x = F.relu(self.linear3(x))
+         # YOUR CODE HERE 
+         y = F.softmax(x)
+         return y
 
 def train_one_epoch(model, device, data_loader, optimizer):
     train_loss = 0
@@ -720,10 +735,10 @@ if __name__ == "__main__":
     minibatch_size = 20
     nepoch = 15
     learning_rate = 0.1
-    momentum = 0
+    momentum = 0.1
 
 
-    model = FFNNModel()
+    model = CNNModel()
     model.to(device)
 
     # YOUR CODE HERE 
@@ -733,10 +748,10 @@ if __name__ == "__main__":
     for epoch in range(nepoch):
       print(f"training Epoch: {epoch}")
       if epoch > 0:
-        train_result = train_one_epoch(model, device, mnist_train, optimizer)
+        train_result = train_one_epoch(model, device, fmnist_train, optimizer)
         print(f"Result Training dataset {train_result}")
 
-      eval_result = evaluation(model, device, mnist_val)
+      eval_result = evaluation(model, device, fmnist_val)
       print(f"Result Test dataset {eval_result}")
 
 """## Open Analysis
@@ -746,15 +761,15 @@ My model depends of the same hypermaremeters than in TP1 : the batch_size, the l
 
 I also take in consideration the momentum, which is a coefficient (between 0 and 1) that, if not null, accumulates the gradient of the past steps to determine the gradient of the current step. The value of the momentum is equal to the percentage of past gradients to consider in next calculations.
 
-The experiment has been made with a set of 70000 images divided in 10 categories or classes from Fashion MNIST - Database. I trained a CNN Model able to recognize the right product category of an image. 86% of the data have been used for training, and the other 14% have been used to test the model after traning. The objective was to have a minimum of 90% accuracy for both training and testing, enough to be representative of reality and not enough to match the training set too much.
+The experiment has been made with a set of 70000 images divided in 10 categories or classes from Fashion MNIST - Database. I trained a CNN Model able to recognize the right product category of an image. 86% of the data have been used for training, and the other 14% have been used to test the model after traning. The objective was to have a minimum of 89% accuracy for both training and testing, enough to be representative of reality and not enough to match the training set too much.
 
-After multiple tries with hyperparameters values, I decided to end my experiment with a batch_size of 20, a learning rate of 0.1, 15 epochs and a 0 momentum (nearly the same hyperparameters of TP1, only the learning rate changes). The sequence of my model remained the same than advised, starting with 2 successive subsequences of 2 3x3 convolution layers and one 2D Max-Pooling layer, then a Flatten layer and 3 Fully-Connected layers.
+After multiple tries with hyperparameters values, I decided to end my experiment with a batch_size of 20, a learning rate of 0.1, 15 epochs and a 0.1 momentum (nearly the same hyperparameters of TP1, only the learning rate changes). The sequence of my model remained the same than advised, starting with 2 successive subsequences of 2 3x3 convolution layers and one 2D Max-Pooling layer, then a Flatten layer and 3 Fully-Connected layers.
 
 For all epochs, a certain number of batches of 32 images each are treated. 1875 batches for traning and 313 batches for testing. 
 
-The first epoch (=0) consists only of a test that ends with poor accuracy (around 10% or more). Logical as the traning hasn't started yet. It is only from the first epoch with actual model training (=1) that we can notice an accuracy skyrocketting for both traning and test, complement of a loss plumetting. Accuracies tend to go up fast, then slower and slower as we arrive to a ceiling near 97% or 98%, awesome numbers when it comes to describing the quality of a model. At the end, training accuracy was around 98% and test accuracy was around 97%, which is way more than enough to consider the objective of this experiment complete.
+The first epoch (=0) consists only of a test that ends with poor accuracy (around 10% or more). Logical as the traning hasn't started yet. It is only from the first epoch with actual model training (=1) that we can notice an accuracy skyrocketting for both traning and test, complement of a loss plumetting. Accuracies tend to go up fast, then slower and slower as we arrive to a ceiling near 97% or 98%, awesome numbers when it comes to describing the quality of a model. At the end, training accuracy was around 91% and test accuracy was around 89% to 90%, which is enough to consider the objective of this experiment complete.
 
-Like in TP1, when raising the number of epochs, accuracies can only go up at the end. 
+Like in TP1, when increasing the number of epochs, accuracies can only go up at the end. 
 
 However, unlike in TP1, the choosing of the learning rate is more indulgent. It is due to the structure of the model, which isn't a classic feed-forward ANN, but a CNN, and CNN are built much better to recognize images than ANN, as they automatically learn the right filters to extract the right features to recognize an image. In TP1, choosing a learning rate of 0.1 made the training and testing more inconsistent (sometimes it went up, sometimes it went down), which meant the learning wasn't fit to minimize the error effectively. The model needed a smaller learning rate. This is not the case in this experiment as a learning rate of 0.1 helped in the fast raising of accuracy, while keeping a consistent trend for the evolution of accuracies, both always going up, just not at the same rate.
 
